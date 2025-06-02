@@ -1,4 +1,4 @@
-!pip install matplotlib
+#!pip install matplotlib
 # Required Libraries
 import pandas as pd
 import numpy as np
@@ -37,7 +37,8 @@ def forecast_prices(data, steps=30):
                       enforce_invertibility=False)
     result = sarimax.fit()
     forecast = result.forecast(steps=steps)
-    return train, test, forecast, result
+    return train, test, forecast, model.order, model.seasonal_order
+
 
 # --- Streamlit UI ---
 st.title("📈 Apple Stock Price Forecast")
@@ -49,7 +50,7 @@ steps = st.sidebar.slider("Forecast Days", 7, 60, 30)
 
 # Forecast Computation
 with st.spinner("Training SARIMA model..."):
-    train, test, forecast, result = forecast_prices(data, steps)
+    train, test, forecast, order, seasonal_order = forecast_prices(data, steps)
 
 # --- Plot ---
 st.subheader("Forecast vs Actual")
@@ -65,5 +66,5 @@ rmse = np.sqrt(mean_squared_error(test, forecast))
 st.metric("Root Mean Squared Error (RMSE)", f"{rmse:.2f}")
 
 # --- Display Best Model Orders ---
-st.write(f"**Best SARIMA Order:** {result.model_orders['order']}")
-st.write(f"**Best Seasonal Order:** {result.model_orders['seasonal_order']}")
+st.write(f"**Best SARIMA Order:** {order}")
+st.write(f"**Best Seasonal Order:** {seasonal_order}")
